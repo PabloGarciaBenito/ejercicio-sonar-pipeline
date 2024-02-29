@@ -4,7 +4,7 @@ node {
   }
 
   stage('Build'){
-
+    
   }
   stage('SonarQube Analysis') {
     def mvn = tool 'jenkins-maven';
