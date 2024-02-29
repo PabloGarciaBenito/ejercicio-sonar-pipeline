@@ -1,6 +1,6 @@
 node {
-  stage('SCM') {
-    checkout scm
+  stage('Checkout') {
+    git 'https://github.com/PabloGarciaBenito/sonar-ejercicio.git'
   }
   stage('SonarQube Analysis') {
     def mvn = tool 'jenkins-maven';
