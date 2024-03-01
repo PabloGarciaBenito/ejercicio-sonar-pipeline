@@ -1,10 +1,11 @@
 node {
   stage('Checkout') {
-    git 'https://github.com/PabloGarciaBenito/sonar-ejercicio.git'
+    checkout([$class: 'GitSCM', branches: [[name: '*/desarrollo']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: '/var/jenkins_home/workspace/prueba2/dockerfile']], userRemoteConfigs: [[url: 'https://github.com/PabloGarciaBenito/ejercicio-sonar-pipeline.git']]])
+    checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: '/var/jenkins_home/workspace/prueba2/app']], userRemoteConfigs: [[url: 'https://github.com/PabloGarciaBenito/ejercicio-sonar-pipeline.git']]])
   }
 
   stage('Build'){
-    
+    sh 'docker build -t prueba-sonar:$BUILD_TAG /home/jenkins/jenkins/jenkins_home/workspace/prueba2/dockerfile/'
   }
   stage('SonarQube Analysis') {
     def mvn = tool 'jenkins-maven';
