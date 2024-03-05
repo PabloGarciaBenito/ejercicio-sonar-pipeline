@@ -12,7 +12,7 @@ node {
     sh 'docker run -d --rm -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -w /app prueba-sonar:$BUILD_TAG mvn clean compile package'
   }
   stage('SonarQube Analysis') {
-    sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -w /app prueba-sonar:$BUILD_TAG /sonar/sonar-scanner-5.0.1.3006-linux/bin/sonar-scanner -Dsonar.token=sqa_c461a16bde6691b763d6f9d981e983e430a63fd3 -Dsonar.projectKey=prueba -Dsonar.java.binaries=target/ -Dsonar.host.url=http://172.18.0.4:9000'
+    sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -w /app prueba-sonar:$BUILD_TAG /sonar/sonar-scanner-5.0.1.3006-linux/bin/sonar-scanner -Dsonar.token=sqa_c461a16bde6691b763d6f9d981e983e430a63fd3 -Dsonar.projectKey=prueba -Dsonar.java.binaries=target/ -Dsonar.host.url=http://172.18.0.5:9000'
   }
   stage('Nexus'){
     sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -v /home/jenkins/jenkins/jenkins_home/.m2/:/root/.m2 -w /app prueba-sonar:$BUILD_TAG mvn deploy -DgeneratePom=false'
