@@ -2,7 +2,6 @@ FROM ubuntu
 
 RUN apt-get update && \
     apt-get -y install maven \
-     postgresql \
      unzip \
      curl
 RUN curl -O https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip && \
