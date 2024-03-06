@@ -5,7 +5,7 @@ node {
   }
 
   stage('Build'){
-    sh 'docker build -t prueba-sonar:$BUILD_TAG /var/jenkins_home/workspace/prueba/dockerfile/ --no-cache'
+    sh 'docker build -t prueba-sonar:$BUILD_TAG /var/jenkins_home/workspace/prueba/dockerfile/'
   }
 
   stage('Compile') {
@@ -16,5 +16,10 @@ node {
   }
   stage('Nexus'){
     sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -v /home/jenkins/jenkins/jenkins_home/.m2/:/root/.m2 -w /app prueba-sonar:$BUILD_TAG mvn deploy -DgeneratePom=false'
+  }
+  stage('Copiar artefacto'){
+    checkout([$class: 'GitSCM', branches: [[name: '*/prueba']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: '/var/jenkins_home/workspace/prueba/copiar-artefacto']], userRemoteConfigs: [[url: 'https://github.com/PabloGarciaBenito/ejercicio-sonar-pipeline.git']]])
+    sh 'cp /var/jenkins_home/workspace/prueba/app/target/*.jar /var/jenkins_home/workspace/prueba/copiar-artefacto/'
+    sh 'docker build -t copiar-artefacto:$BUILD_TAG /var/jenkins_home/workspace/prueba/copiar-artefacto/'
   }
 }
