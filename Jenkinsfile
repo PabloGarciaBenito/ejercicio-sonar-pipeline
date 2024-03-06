@@ -5,7 +5,7 @@ node {
   }
 
   stage('Build'){
-    sh 'docker build -t prueba-sonar:$BUILD_TAG /var/jenkins_home/workspace/prueba/dockerfile/ --no-cache'
+    sh 'docker build -t prueba-sonar:$BUILD_TAG /var/jenkins_home/workspace/prueba/dockerfile/'
   }
 
   stage('Compile') {
