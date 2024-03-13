@@ -9,10 +9,14 @@ node {
   }
 
   stage('Compile') {
-    sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -v /home/jenkins/jenkins/jenkins_home/.m2/:/root/.m2 -w /app prueba-sonar:$BUILD_TAG mvn clean compile package'
+    sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -v /home/jenkins/jenkins/jenkins_home/.m2/:/root/.m2 -w /app prueba-sonar:$BUILD_TAG mvn clean install'
+    sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -v /home/jenkins/jenkins/jenkins_home/.m2/:/root/.m2 -w /app prueba-sonar:$BUILD_TAG chown -R 1000:1000 target/ /root/.m2/'
   }
   stage('SonarQube Analysis') {
-    sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -w /app prueba-sonar:$BUILD_TAG /sonar/sonar-scanner-5.0.1.3006-linux/bin/sonar-scanner -Dsonar.token=squ_9b54903cd6ee845ae7e2eb5dce4ef9fe4af23c89 -Dsonar.projectKey=prueba -Dsonar.java.binaries=target/ -Dsonar.host.url=http://172.18.0.6:9000'
+    def mvn = tool 'jenkins-maven';
+    withSonarQubeEnv(credentialsId: 'sonar-token') {
+      sh "${mvn}/bin/mvn -f /var/jenkins_home/workspace/prueba/app/pom.xml sonar:sonar -Dsonar.token=squ_9b54903cd6ee845ae7e2eb5dce4ef9fe4af23c89"
+    }
   }
   stage('Nexus'){
     sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -v /home/jenkins/jenkins/jenkins_home/.m2/:/root/.m2 -w /app prueba-sonar:$BUILD_TAG mvn deploy -DgeneratePom=false'
@@ -23,7 +27,7 @@ node {
     sh 'docker build -t copiar-artefacto:$BUILD_TAG /var/jenkins_home/workspace/prueba/copiar-artefacto/'
   }
   stage('Dependency-check') {
-    dependencyCheck additionalArguments: '--scan /var/jenkins_home/workspace/prueba/app/ --connectionString jdbc:postgresql://172.18.0.3:5432/dependencycheck -l logs.txt --dbUser=postgres --dbPassword=postgres --out . --dbDriverName=org.postgresql.Driver', odcInstallation: 'dependency-check v9.0.8'
+    dependencyCheck additionalArguments: '--scan /var/jenkins_home/workspace/prueba/app/ --out . -n', odcInstallation: 'dependency-check v9.0.8'
     dependencyCheckPublisher pattern: 'dependency-check-report.xml'
   }
 }
