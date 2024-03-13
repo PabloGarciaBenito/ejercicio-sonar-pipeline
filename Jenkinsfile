@@ -23,7 +23,7 @@ node {
     sh 'docker build -t copiar-artefacto:$BUILD_TAG /var/jenkins_home/workspace/prueba/copiar-artefacto/'
   }
   stage('Dependency-check') {
-    dependencyCheck additionalArguments: '--scan /var/jenkins_home/workspace/prueba/app/ --connectionString jdbc:postgresql://172.18.0.5:5432/dependencycheck -l logs.txt --dbUser=postgres --dbPassword=postgres --out . --dbDriverName=org.postgresql.Driver', odcInstallation: 'dependency-check v9.0.8'
+    dependencyCheck additionalArguments: '--scan /var/jenkins_home/workspace/prueba/app/ --connectionString jdbc:postgresql://172.18.0.3:5432/dependencycheck -l logs.txt --dbUser=postgres --dbPassword=postgres --out . --dbDriverName=org.postgresql.Driver', odcInstallation: 'dependency-check v9.0.8'
     dependencyCheckPublisher pattern: 'dependency-check-report.xml'
   }
 }
