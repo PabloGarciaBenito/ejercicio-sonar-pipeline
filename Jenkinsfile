@@ -15,7 +15,7 @@ node {
   stage('SonarQube Analysis') {
     def mvn = tool 'jenkins-maven';
     withSonarQubeEnv(credentialsId: 'sonar-token') {
-      sh "${mvn}/bin/mvn -f /var/jenkins_home/workspace/prueba/app/pom.xml sonar:sonar -Dsonar.token=squ_9b54903cd6ee845ae7e2eb5dce4ef9fe4af23c89"
+      sh "${mvn}/bin/mvn -f /var/jenkins_home/workspace/prueba/app/pom.xml sonar:sonar -Dsonar.token=squ_9b54903cd6ee845ae7e2eb5dce4ef9fe4af23c89 -Dsonar.projectKey=prueba"
     }
   }
   stage('Nexus'){
