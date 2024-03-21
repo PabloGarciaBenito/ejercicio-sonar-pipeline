@@ -12,12 +12,6 @@ node {
     sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -v /home/jenkins/jenkins/jenkins_home/.m2/:/root/.m2 -w /app prueba-sonar:$BUILD_TAG mvn clean install'
     sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -v /home/jenkins/jenkins/jenkins_home/.m2/:/root/.m2 -w /app prueba-sonar:$BUILD_TAG chown -R 1000:1000 target/ /root/.m2/'
   }
-  stage('SonarQube Analysis') {
-    def mvn = tool 'jenkins-maven';
-    withSonarQubeEnv(credentialsId: 'sonar-token') {
-      sh "${mvn}/bin/mvn -f /var/jenkins_home/workspace/prueba/app/pom.xml sonar:sonar -Dsonar.token=squ_9b54903cd6ee845ae7e2eb5dce4ef9fe4af23c89 -Dsonar.projectKey=prueba"
-    }
-  }
   stage('Nexus'){
     sh 'docker run --rm --network jenkins_net -v /home/jenkins/jenkins/jenkins_home/workspace/prueba/app/:/app -v /home/jenkins/jenkins/jenkins_home/.m2/:/root/.m2 -w /app prueba-sonar:$BUILD_TAG mvn deploy -DgeneratePom=false'
   }
@@ -29,5 +23,11 @@ node {
   stage('Dependency-check') {
     dependencyCheck additionalArguments: '--scan /var/jenkins_home/workspace/prueba/app/ --out . -n', odcInstallation: 'dependency-check v9.0.8'
     dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+  }
+  stage('SonarQube Analysis') {
+    def mvn = tool 'jenkins-maven';
+    withSonarQubeEnv(credentialsId: 'sonar-token') {
+      sh "${mvn}/bin/mvn -f /var/jenkins_home/workspace/prueba/app/pom.xml sonar:sonar -Dsonar.token=squ_9b54903cd6ee845ae7e2eb5dce4ef9fe4af23c89 -Dsonar.projectKey=prueba -Dsonar.dependencyCheck.htmlReportPath=target/dependency-check-report.html"
+    }
   }
 }
